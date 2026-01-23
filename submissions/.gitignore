@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Kaggle / outputs
+submission.csv
+*.zip
+
+# Model artifacts (optional)
+# Comment this out if you want to keep models in repo
+# models/
+
+# VS Code
+.vscode/

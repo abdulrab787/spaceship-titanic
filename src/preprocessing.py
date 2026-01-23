@@ -1,9 +1,12 @@
+# processing.py
 import pandas as pd
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 
-def preprocess_data(df):
+def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
-    # Split Cabin
+    # Split Cabin into Deck / CabinNum / Side
     df[["Deck", "CabinNum", "Side"]] = df["Cabin"].str.split("/", expand=True)
 
     # Convert CabinNum to numeric
@@ -13,7 +16,6 @@ def preprocess_data(df):
     spend_cols = ["RoomService", "FoodCourt", "ShoppingMall", "Spa", "VRDeck"]
     df[spend_cols] = df[spend_cols].fillna(0)
 
-    # Ensure spend columns are numeric
     for col in spend_cols:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
@@ -30,7 +32,30 @@ def preprocess_data(df):
     df["CryoSleep"].fillna(False, inplace=True)
     df["Age"].fillna(df["Age"].median(), inplace=True)
 
-    # Drop Useless Columns
+    # Cast booleans to object for OneHotEncoder
+    df["VIP"] = df["VIP"].astype("object")
+    df["CryoSleep"] = df["CryoSleep"].astype("object")
+
+    # Drop columns not used by the model
     df.drop(["Name", "Cabin", "PassengerId", "Group"], axis=1, inplace=True)
 
     return df
+
+
+numeric_features = [
+    "Age", "RoomService", "FoodCourt",
+    "ShoppingMall", "Spa", "VRDeck",
+    "GroupSize", "TotalSpend", "CabinNum"
+]
+
+categorical_features = [
+    "HomePlanet", "CryoSleep", "Destination",
+    "VIP", "Deck", "Side"
+]
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("num", StandardScaler(), numeric_features),
+        ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features),
+    ]
+)
